@@ -4,9 +4,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/NetlutZ/subscout/internal/auth"
-	"github.com/NetlutZ/subscout/internal/db"
-	"github.com/NetlutZ/subscout/internal/subscriptions"
+	"github.com/NetlutZ/subscout/internal/database"
+	"github.com/NetlutZ/subscout/internal/handler"
+	"github.com/NetlutZ/subscout/internal/repository"
+	"github.com/NetlutZ/subscout/internal/service"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 )
@@ -17,23 +18,30 @@ func main() {
 		log.Fatal("Error Loading .env File : ", err)
 	}
 
-	if err := db.Connect(); err != nil {
+	// Connect to Database
+	db, err := database.DatabaseConnect()
+	if err != nil {
 		log.Fatal("Failed to connect to DB:", err)
 	}
 	log.Println("PostgreSQL connected")
-	defer db.DB.Close()
+	defer db.Close()
 
-	err = db.Migrate()
+	// Create Table
+	query := database.Migrate()
+	_, err = db.Exec(query)
 	if err != nil {
-		log.Fatal("error while migrating to database: ", err)
+		log.Fatal("Error while creating/migrating database: ", err)
 	}
 
-	app := fiber.New()
-	authGroup := app.Group("/auth")
-	auth.NewService().RegisterRoute(authGroup)
+	subscriptionRepositoryDB := repository.NewSubscriptionRepositoryDB(db)
+	subscriptionService := service.NewSubscriptionService(subscriptionRepositoryDB)
 
-	api := app.Group("/api", auth.Protected())
-	subscriptions.NewService().RegisterRoute(api)
+	app := fiber.New()
+	handler.RegisterSubscriptionRoutes(app, subscriptionService)
+
+	userRepo := repository.NewUserRepositoryDB(db)
+	authService := service.NewAuthService(userRepo)
+	handler.RegisterAuthRoutes(app, authService)
 
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -1,11 +1,6 @@
-package db
+package database
 
-import (
-	"fmt"
-	"log"
-)
-
-func Migrate() error {
+func Migrate() string {
 	query := `
     CREATE TABLE IF NOT EXISTS users (
 		id SERIAL PRIMARY KEY,
@@ -62,11 +57,5 @@ func Migrate() error {
 	);
 	`
 
-	_, err := DB.Exec(query)
-	if err != nil {
-		log.Println("error while creating/migrate the database: ", err)
-		return err
-	}
-	fmt.Println("Creation/Migration completed")
-	return nil
+	return query
 }

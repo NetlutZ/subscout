@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"database/sql"
@@ -10,13 +10,13 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var DB *sql.DB
+// var DB *sql.DB
 
-func Connect() error {
+func DatabaseConnect() (*sql.DB, error) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
-		return err
+		return nil, err
 	}
 
 	dsn := fmt.Sprintf(
@@ -28,15 +28,15 @@ func Connect() error {
 		os.Getenv("DB_NAME"),
 	)
 
-	DB, err = sql.Open("postgres", dsn)
+	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if err = DB.Ping(); err != nil {
+	if err = db.Ping(); err != nil {
 		log.Println("error making a test ping to the server: ", err)
-		return err
+		return nil, err
 	}
 	log.Println("Database connected successfully")
-	return nil
+	return db, nil
 }
