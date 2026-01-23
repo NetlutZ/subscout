@@ -26,5 +26,15 @@ services:
       - postgres
     restart: unless-stopped
 
+  subscout-server:
+    image: subscout-backend:1.0
+    container_name: subscout-server
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
 volumes:
   postgres_data:

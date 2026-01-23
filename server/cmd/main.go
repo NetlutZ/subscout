@@ -9,13 +9,14 @@ import (
 	"github.com/NetlutZ/subscout/internal/repository"
 	"github.com/NetlutZ/subscout/internal/service"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 )
 
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal("Error Loading .env File : ", err)
+		log.Println("Error Loading .env File : ", err)
 	}
 
 	// Connect to Database
@@ -37,6 +38,11 @@ func main() {
 	subscriptionService := service.NewSubscriptionService(subscriptionRepositoryDB)
 
 	app := fiber.New()
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowMethods: "GET,POST,PUT,DELETE",
+		AllowHeaders: "Content-Type, Authorization",
+	}))
 	handler.RegisterSubscriptionRoutes(app, subscriptionService)
 
 	userRepo := repository.NewUserRepositoryDB(db)
@@ -45,7 +51,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "5000"
+		port = "8080"
 	}
 	log.Fatal(app.Listen("0.0.0.0:" + port))
 }

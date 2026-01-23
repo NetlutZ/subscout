@@ -74,7 +74,7 @@ func (h AuthHandler) Logout(c *fiber.Ctx) error {
 func Protected() fiber.Handler {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal("Error Loading .env File : ", err)
+		log.Println("Error Loading .env File : ", err)
 	}
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {

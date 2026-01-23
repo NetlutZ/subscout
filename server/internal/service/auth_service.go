@@ -37,7 +37,7 @@ func (s authService) Register(name, email, password string) (*repository.User, e
 func (s authService) Login(email, password string) (string, *repository.User, error) {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal("Error Loading .env File : ", err)
+		log.Println("Error Loading .env File : ", err)
 	}
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {

@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/subscription.dart';
 
 class SubscriptionService {
-  static const String baseUrl = 'http://10.0.2.2:5000';
+  static const String baseUrl = String.fromEnvironment('API_URL');
 
   /// 🔐 Get auth headers with JWT
   Future<Map<String, String>> _authHeaders() async {
